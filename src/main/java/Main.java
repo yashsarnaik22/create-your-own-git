@@ -32,7 +32,7 @@ public class Main {
          final String objectHash = args[2];
          final String objectFolder = objectHash.substring(0,2);
          final String fileName = objectHash.substring(2);
-         try(InputStream in = new InflaterInputStream(new FileInputStream(Files.readString(Paths.get(".git/objects/" + objectFolder + "/" + fileName))))){
+         try(InflaterInputStream in = new InflaterInputStream(new FileInputStream(Files.readString(Paths.get(".git/objects/" + objectFolder + "/" + fileName))))){
            OutputStream out = new ByteArrayOutputStream();
            byte[] buffer = new byte[1024];
            int length;
