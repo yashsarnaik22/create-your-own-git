@@ -1,6 +1,7 @@
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 
 public class Main {
@@ -32,11 +33,14 @@ public class Main {
          final String objectHash = args[2];
          final String objectFolder = objectHash.substring(0,2);
          final String fileName = objectHash.substring(2);
-         try(InflaterInputStream in = new InflaterInputStream(new FileInputStream(Files.readString(Paths.get(".git/objects/" + objectFolder + "/" + fileName))))){
+         try{
+           Inflater in = new Inflater();
+           byte[] fileContent =  Files.readAllBytes(Paths.get(".git/objects/" + objectFolder + "/" + fileName));
+           in.setInput(fileContent);
            OutputStream out = new ByteArrayOutputStream();
            byte[] buffer = new byte[1024];
            int length;
-           while((length = in.read(buffer)) > 0){
+           while((length = in.inflate(buffer)) > 0){
              out.write(buffer,0,length);
            }
            String content = out.toString();
