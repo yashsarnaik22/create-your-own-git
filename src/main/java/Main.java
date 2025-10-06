@@ -1,6 +1,6 @@
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
+import java.util.zip.InflaterInputStream;
 
 public class Main {
   public static void main(String[] args){
@@ -14,7 +14,8 @@ public class Main {
      switch (command) {
        case "init" -> {
          final File root = new File(".git");
-         new File(root, "objects").mkdirs();
+         final File objects = new File(root, "objects");
+         objects.mkdirs();
          new File(root, "refs").mkdirs();
          final File head = new File(root, "HEAD");
 
@@ -25,8 +26,37 @@ public class Main {
          } catch (IOException e) {
            throw new RuntimeException(e);
          }
+         System.out.println("Files in .git/objects directory :" + objects.listFiles());
+         File[] filesinobjects = objects.listFiles();
+         if(filesinobjects != null ){
+           for(File f : filesinobjects){
+             if(f.isDirectory() && f.listFiles() != null){
+               for(File f1 : f.listFiles()){
+                 File content = new File("content.txt");
+                 try(InputStream in = new InflaterInputStream(new FileInputStream(f1))){
+                   OutputStream out = new FileOutputStream(content);
+                   byte[] buffer = new byte[1024];
+                   int length;
+                   while((length = in.read(buffer)) > 0){
+                     out.write(buffer,0,length);
+                   }
+                 } catch (Exception e) {
+                   throw new RuntimeException(e);
+                 }
+                 try{
+                   System.out.println(Files.readString(content.toPath()));
+                 }catch (Exception e){
+                     throw new RuntimeException(e);
+                 }
+               }
+             }
+           }
+         }
+
+
        }
        default -> System.out.println("Unknown command: " + command);
      }
+
   }
 }
