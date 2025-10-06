@@ -44,7 +44,7 @@ public class Main {
              out.write(buffer,0,length);
            }
            String content = out.toString();
-           System.out.println(content.substring(content.indexOf("\0")+1));
+           System.out.print(content.substring(content.indexOf("\0")+1));
          } catch (Exception e) {
            throw new RuntimeException(e);
          }
