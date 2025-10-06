@@ -1,5 +1,6 @@
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.zip.InflaterInputStream;
 
 public class Main {
@@ -26,37 +27,25 @@ public class Main {
          } catch (IOException e) {
            throw new RuntimeException(e);
          }
-         System.out.println("Files in .git/objects directory :" + objects.listFiles());
-         File[] filesinobjects = objects.listFiles();
-         if(filesinobjects != null ){
-           for(File f : filesinobjects){
-             if(f.isDirectory() && f.listFiles() != null){
-               for(File f1 : f.listFiles()){
-                 File content = new File("content.txt");
-                 try(InputStream in = new InflaterInputStream(new FileInputStream(f1))){
-                   OutputStream out = new FileOutputStream(content);
-                   byte[] buffer = new byte[1024];
-                   int length;
-                   while((length = in.read(buffer)) > 0){
-                     out.write(buffer,0,length);
-                   }
-                 } catch (Exception e) {
-                   throw new RuntimeException(e);
-                 }
-                 try{
-                   System.out.println(Files.readString(content.toPath()));
-                 }catch (Exception e){
-                     throw new RuntimeException(e);
-                 }
-               }
-             }
+       }
+       case "cat-file" ->{
+         final String objectHash = args[2];
+         final String objectFolder = objectHash.substring(0,2);
+         final String fileName = objectHash.substring(2);
+         try(InputStream in = new InflaterInputStream(new FileInputStream(Files.readString(Paths.get(".git/objects/" + objectFolder + "/" + fileName))))){
+           OutputStream out = new ByteArrayOutputStream();
+           byte[] buffer = new byte[1024];
+           int length;
+           while((length = in.read(buffer)) > 0){
+             out.write(buffer,0,length);
            }
+           String content = out.toString();
+           System.out.println(content.substring(content.indexOf("\0")+1));
+         } catch (Exception e) {
+           throw new RuntimeException(e);
          }
-
-
        }
        default -> System.out.println("Unknown command: " + command);
      }
-
   }
 }
